@@ -69,19 +69,15 @@ fun DetailsScreen(
                 val dimensions = state!!.order.dimensions
                 "Размеры груза: ${dimensions[0]} см X ${dimensions[0]} см X ${dimensions[0]} см"
             }
-            val currentLongitude = remember {
-                state!!.longitude
-            }
-            val currentLatitude = remember {
-                state!!.latitude
-            }
+            val currentLongitude = state!!.longitude
 
-            val endLongitude = remember {
-                state!!.order.longitude
-            }
-            val endLatitude = remember {
-                state!!.order.latitude
-            }
+            val currentLatitude = state!!.latitude
+
+
+            val endLongitude = state!!.order.longitude
+
+            val endLatitude = state!!.order.latitude
+
             AndroidView(
                 modifier = Modifier
                     .clip(RoundedCornerShape(30.dp))

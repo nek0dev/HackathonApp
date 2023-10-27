@@ -18,8 +18,8 @@ class FakeDataSource: OrdersDataSource {
                 longitude = 39.196181
             ),
             state = "in base",
-            latitude = 0.0,
-            longitude = 0.0
+            latitude = 51.666666,
+            longitude = 39.444444
         ).some()
     }
 }
