@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.devtoolsKsp)
     alias(libs.plugins.protobuf)
+    kotlin("plugin.serialization") version "1.9.10"
+    id("kotlin-parcelize")
 }
 
 android {
@@ -21,6 +23,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField("String", "MAP_KEY", "\"INSERT API KEY HERE\"")
+        signingConfig = signingConfigs.getByName("debug")
     }
 
     buildTypes {
@@ -41,9 +45,10 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {
@@ -126,6 +131,21 @@ dependencies {
 
     // Lottie
     implementation(libs.lottie.compose)
+
+    // Core Splashscreen API
+    implementation(libs.androidx.core.splashscreen)
+
+    /// Room
+    annotationProcessor(libs.room.compiler)
+    api(libs.androidx.room.runtime)
+    api(libs.androidx.room.ktx)
+    ksp(libs.room.compiler)
+
+    // Gson
+    implementation(libs.gson)
+
+    // MapKit
+    implementation(libs.maps.mobile)
 
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)

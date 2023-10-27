@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <style name="Theme.AppSplash" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.HackathonApp</item>
+    </style>
     <style name="Theme.HackathonApp" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
