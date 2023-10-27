@@ -1,6 +1,6 @@
 package com.nekodev.hackathonapp.navigation.root
 
-import com.arkivanov.essenty.parcelable.Parcelable
+import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

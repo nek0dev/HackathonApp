@@ -26,7 +26,7 @@ interface OrderAndStateDao {
     @Insert(onConflict = REPLACE)
     suspend fun insertOrder(order: OrderDB)
 
-    @Query("UPDATE states SET state=:state AND id = :id")
+    @Query("UPDATE states SET state=:state WHERE id = :id")
     suspend fun updateOrder(id: Int, state: String)
 
     @Delete

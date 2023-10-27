@@ -76,9 +76,11 @@ class DefaultRootComponent(
                                 return@update newList
                             } else {
                                 val newList = it.toMutableList()
-                                newList.removeIf {
-                                    state.order.id == config.orderId
+                                val lol = newList.indexOfFirst {
+                                    it.order.id == config.orderId
                                 }
+                                if (lol == -1) return@update newList
+                                newList.removeAt(lol)
                                 newList += state
                                 return@update newList
                             }

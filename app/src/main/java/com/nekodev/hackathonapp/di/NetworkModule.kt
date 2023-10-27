@@ -2,7 +2,7 @@ package com.nekodev.hackathonapp.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.nekodev.hackathonapp.network.api.NetworkApi
-import com.nekodev.hackathonapp.network.datasource.NetworkDataSource
+import com.nekodev.hackathonapp.network.datasource.FakeDataSource
 import com.nekodev.hackathonapp.network.datasource.OrdersDataSource
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -40,8 +40,8 @@ val networkModule = module {
     }
 
     single<OrdersDataSource> {
-        NetworkDataSource(get())
-        //FakeDataSource()
+        //NetworkDataSource(get())
+        FakeDataSource()
     }
 
     single<OkHttpClient>(named("noAuthClient")) {
