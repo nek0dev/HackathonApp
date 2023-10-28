@@ -5,7 +5,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-interface NetworkApi {
+interface DroneApi {
     @GET("state/get/{order_id}")
     suspend fun getStateById(
         @Path("order_id") id: Int

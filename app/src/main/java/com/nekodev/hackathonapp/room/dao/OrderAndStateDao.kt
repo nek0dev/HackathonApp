@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
-import com.nekodev.hackathonapp.room.entities.OrderAndState
+import com.nekodev.hackathonapp.room.entities.OrderAndStateDB
 import com.nekodev.hackathonapp.room.entities.OrderDB
 import com.nekodev.hackathonapp.room.entities.StateDB
 
@@ -14,11 +14,11 @@ import com.nekodev.hackathonapp.room.entities.StateDB
 interface OrderAndStateDao {
     @Transaction
     @Query("SELECT * FROM orders WHERE id = :orderId")
-    suspend fun getOrderAndState(orderId: Int): OrderAndState
+    suspend fun getOrderAndState(orderId: Int): OrderAndStateDB
 
     @Transaction
     @Query("SELECT * FROM orders")
-    suspend fun getAllStates(): List<OrderAndState>
+    suspend fun getAllStates(): List<OrderAndStateDB>
 
     @Insert(onConflict = REPLACE)
     suspend fun insertState(state: StateDB)

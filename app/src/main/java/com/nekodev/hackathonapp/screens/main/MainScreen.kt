@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nekodev.hackathonapp.R
+import com.nekodev.hackathonapp.model.OrderState
 
 val SECONDARY = Color(0xFFEDF1FD)
 val PRIMARY = Color(0xFF3D73FF)
@@ -121,45 +122,81 @@ fun MainScreen(
             contentPadding = PaddingValues(vertical = 10.dp)
         ) {
             items(states) { state ->
-                val name = remember {
-                    "Заказ №${state.order.id}"
-                }
-                ElevatedCard(
-                    colors = CardDefaults.elevatedCardColors(
-                        containerColor = SECONDARY
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    onClick = {
-                        component.selectState(orderId = state.order.id)
+                if (state is OrderState.OnlyOrder) {
+                    val name = remember {
+                        "Заказ №${state.orderId}"
                     }
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(vertical = 20.dp)
-                            .padding(horizontal = 16.dp)
+                    ElevatedCard(
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = SECONDARY
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        onClick = {
+                            component.selectState(orderId = state.orderId)
+                        }
                     ) {
-                        if (state.state == "in base"){
-                            Icon(
-                                painter = painterResource(id = R.drawable.check_circle_24px),
-                                contentDescription = null,
-                                tint = PRIMARY
-                            )
-                        } else if (state.state == "in delivery") {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(vertical = 20.dp)
+                                .padding(horizontal = 16.dp)
+                        ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.clock_loader_60_24px),
                                 contentDescription = null,
                                 tint = PRIMARY
                             )
-                        }
 
-                        Text(
-                            text = name,
-                            modifier = Modifier.weight(1f)
-                        )
+                            Text(
+                                text = name,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
+                if (state is OrderState.OrderAndState) {
+                    val name = remember {
+                        "Заказ №${state.orderId}"
+                    }
+                    ElevatedCard(
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = SECONDARY
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        onClick = {
+                            component.selectState(orderId = state.orderId)
+                        }
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(vertical = 20.dp)
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            if (state.state == "in base"){
+                                Icon(
+                                    painter = painterResource(id = R.drawable.check_circle_24px),
+                                    contentDescription = null,
+                                    tint = PRIMARY
+                                )
+                            } else if (state.state == "in delivery") {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.clock_loader_60_24px),
+                                    contentDescription = null,
+                                    tint = PRIMARY
+                                )
+                            }
+
+                            Text(
+                                text = name,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+
             }
         }
     }

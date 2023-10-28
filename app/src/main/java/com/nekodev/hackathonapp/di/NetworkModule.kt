@@ -1,8 +1,9 @@
 package com.nekodev.hackathonapp.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.nekodev.hackathonapp.network.api.NetworkApi
-import com.nekodev.hackathonapp.network.datasource.FakeDataSource
+import com.nekodev.hackathonapp.network.api.DroneApi
+import com.nekodev.hackathonapp.network.api.OrderApi
+import com.nekodev.hackathonapp.network.datasource.NetworkDataSource
 import com.nekodev.hackathonapp.network.datasource.OrdersDataSource
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -19,11 +20,14 @@ import retrofit2.Retrofit
 val networkModule = module {
     factory<HttpLoggingInterceptor> {
         HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.HEADERS
+            level = HttpLoggingInterceptor.Level.BODY
         }
     }
-    single(named("mainEndpoint")){
+    single(named("droneEndpoint")) {
         Endpoint("http://91.107.125.237:8001/")
+    }
+    single(named("orderEndpoint")) {
+        Endpoint("http://91.107.125.237:8002/api/v1/")
     }
     single<Json> {
         Json {
@@ -35,30 +39,44 @@ val networkModule = module {
         get<Json>().asConverterFactory("application/json".toMediaType())
     }
 
-    single<NetworkApi> {
-        get<Retrofit>(named("noAuthRetrofit")).create(NetworkApi::class.java)
+    single<DroneApi> {
+        get<Retrofit>(named("droneRetrofit")).create(DroneApi::class.java)
+    }
+
+    single<OrderApi> {
+        get<Retrofit>(named("orderRetrofit")).create(OrderApi::class.java)
     }
 
     single<OrdersDataSource> {
-        //NetworkDataSource(get())
-        FakeDataSource()
+        NetworkDataSource(
+            orderApi = get(),
+            droneApi = get()
+        )
+        //FakeDataSource()
     }
 
-    single<OkHttpClient>(named("noAuthClient")) {
-        val builder = OkHttpClient.Builder()
-        with(builder){
+    single<OkHttpClient> {
+        OkHttpClient.Builder().apply {
             addInterceptor(get<HttpLoggingInterceptor>())
             retryOnConnectionFailure(true)
             followRedirects(true)
-        }
-        builder.build()
+        }.build()
     }
 
-    single<Retrofit>(named("noAuthRetrofit")) {
-        Retrofit.Builder()
-            .baseUrl(get<Endpoint>(named("mainEndpoint")).url)
-            .addConverterFactory(get())
-            .client(get<OkHttpClient>(named("noAuthClient")))
-            .build()
+    single<Retrofit>(named("droneRetrofit")) {
+        Retrofit.Builder().apply {
+            baseUrl(get<Endpoint>(named("droneEndpoint")).url)
+            addConverterFactory(get())
+            client(get<OkHttpClient>())
+        }.build()
+    }
+
+    single<Retrofit>(named("orderRetrofit")) {
+        Retrofit.Builder().apply {
+            baseUrl(get<Endpoint>(named("orderEndpoint")).url)
+            addConverterFactory(get())
+            client(get<OkHttpClient>())
+        }.build()
+
     }
 }

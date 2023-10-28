@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
@@ -29,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nekodev.hackathonapp.model.OrderState
+import com.nekodev.hackathonapp.screens.main.PRIMARY
 import com.nekodev.hackathonapp.screens.main.SECONDARY
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -59,130 +62,268 @@ fun DetailsScreen(
             color = Color.Black
         )
         if (state != null && !hasError) {
-            val name = remember {
-                "Заказ №${state!!.order.id}"
-            }
-            val weight = remember {
-                "Вес: ${state!!.order.weight} г"
-            }
-            val dimensions = remember {
-                val dimensions = state!!.order.dimensions
-                "Размеры груза: ${dimensions[0]} см X ${dimensions[0]} см X ${dimensions[0]} см"
-            }
-            val currentLongitude = state!!.longitude
+            if (state is OrderState.OrderAndState) {
+                val stateLol = (state as OrderState.OrderAndState)
+                val name = remember {
+                    "Заказ №${stateLol.orderId}"
+                }
+                val weight = remember {
+                    "Вес: ${stateLol.weight} г"
+                }
+                val dimensions = remember {
+                    val dimensions = stateLol.dimensions
+                    "Размеры груза: ${dimensions[0]} см X ${dimensions[1]} см X ${dimensions[2]} см"
+                }
+                val currentLongitude = stateLol.currentLongitude
 
-            val currentLatitude = state!!.latitude
+                val currentLatitude = stateLol.currentLatitude
 
 
-            val endLongitude = state!!.order.longitude
+                val endLongitude = stateLol.endLongitude
 
-            val endLatitude = state!!.order.latitude
+                val endLatitude = stateLol.endLatitude
 
-            AndroidView(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(Color.White)
-                    .fillMaxWidth()
-                    .aspectRatio(16 / 9f),
-                factory = {
-                    MapKitFactory.getInstance().onStart()
-                    MapView(it).apply {
-                        onStart()
-                        map.isScrollGesturesEnabled = false
-                        map.isZoomGesturesEnabled = false
-                        map.isRotateGesturesEnabled = false
-                        map.isTiltGesturesEnabled = false
-                    }
-                },
-                update = {
-                    it.map.move(
-                        CameraPosition(
-                            Point(currentLatitude, currentLongitude),
-                            13f, 0.0f, 0.0f
+                Text(
+                    text = "Текущее положение",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 22.sp,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                AndroidView(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(Color.White)
+                        .fillMaxWidth()
+                        .aspectRatio(16 / 9f),
+                    factory = {
+                        MapKitFactory.getInstance().onStart()
+                        MapView(it).apply {
+                            onStart()
+                            map.isScrollGesturesEnabled = false
+                            map.isZoomGesturesEnabled = false
+                            map.isRotateGesturesEnabled = false
+                            map.isTiltGesturesEnabled = false
+                        }
+                    },
+                    update = {
+                        it.map.move(
+                            CameraPosition(
+                                Point(currentLatitude, currentLongitude),
+                                13f, 0.0f, 0.0f
+                            )
                         )
-                    )
-                    it.map.mapObjects.addPlacemark(Point(endLatitude, endLongitude))
-                }
+                        it.map.mapObjects.addPlacemark(Point(currentLatitude, currentLongitude))
+                    }
 
-            )
+                )
 
-            Text(
-                text = name,
-                fontSize = 24.sp,
-                color = Color.Black,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Start,
-                fontWeight = FontWeight.Medium
-            )
+                Text(
+                    text = name,
+                    fontSize = 24.sp,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Medium
+                )
 
-            Text(
-                text = weight,
-                fontSize = 20.sp,
-                color = Color.Black,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Start,
-                fontWeight = FontWeight.Medium
-            )
+                Text(
+                    text = weight,
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Medium
+                )
 
-            Text(
-                text = dimensions,
-                fontSize = 20.sp,
-                color = Color.Black,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Start,
-                fontWeight = FontWeight.Medium
-            )
+                Text(
+                    text = dimensions,
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Medium
+                )
 
-            ElevatedCard(
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = SECONDARY
-                ),
-                shape = RoundedCornerShape(12.dp),
-                onClick = {
-                    component.openMaps(currentLatitude, currentLongitude)
-                }
-            ) {
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(vertical = 20.dp)
-                        .padding(horizontal = 16.dp)
+                ElevatedCard(
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = SECONDARY
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        component.openMaps(currentLatitude, currentLongitude)
+                    }
                 ) {
-                    Text(
-                        text = "Текущее положение",
-                        modifier = Modifier.weight(1f),
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
 
-            ElevatedCard(
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = SECONDARY
-                ),
-                shape = RoundedCornerShape(12.dp),
-                onClick = {
-                    component.openMaps(endLatitude, endLongitude)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(vertical = 20.dp)
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = "Текущее положение",
+                            modifier = Modifier.weight(1f),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
-            ) {
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(vertical = 20.dp)
-                        .padding(horizontal = 16.dp)
+                ElevatedCard(
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = SECONDARY
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        component.openMaps(endLatitude, endLongitude)
+                    }
                 ) {
-                    Text(
-                        text = "Конечное положение",
-                        modifier = Modifier.weight(1f),
-                        fontWeight = FontWeight.Medium
-                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(vertical = 20.dp)
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = "Конечное положение",
+                            modifier = Modifier.weight(1f),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
+                return
             }
-            return
+            if (state is OrderState.OnlyOrder) {
+                val stateLol = (state as OrderState.OnlyOrder)
+                val name = remember {
+                    "Заказ №${stateLol.orderId}"
+                }
+                val weight = remember {
+                    "Вес: ${stateLol.weight} г"
+                }
+                val dimensions = remember {
+                    val dimensions = stateLol.dimensions
+                    "Размеры груза: ${dimensions[0]} см X ${dimensions[1]} см X ${dimensions[2]} см"
+                }
+
+                val endLongitude = stateLol.endLongitude
+
+                val endLatitude = stateLol.endLatitude
+
+                Text(
+                    text = "Конечное положение",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 22.sp,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                AndroidView(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(Color.White)
+                        .fillMaxWidth()
+                        .aspectRatio(16 / 9f),
+                    factory = {
+                        MapKitFactory.getInstance().onStart()
+                        MapView(it).apply {
+                            onStart()
+                            map.isScrollGesturesEnabled = false
+                            map.isZoomGesturesEnabled = false
+                            map.isRotateGesturesEnabled = false
+                            map.isTiltGesturesEnabled = false
+                        }
+                    },
+                    update = {
+                        it.map.move(
+                            CameraPosition(
+                                Point(endLatitude, endLongitude),
+                                13f, 0.0f, 0.0f
+                            )
+                        )
+                        it.map.mapObjects.addPlacemark(Point(endLatitude, endLongitude))
+                    }
+
+                )
+
+                Text(
+                    text = name,
+                    fontSize = 24.sp,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Text(
+                    text = weight,
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Text(
+                    text = dimensions,
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start,
+                    fontWeight = FontWeight.Medium
+                )
+
+                ElevatedCard(
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = Color(250, 137, 137, 255)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ){
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(vertical = 20.dp)
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = "Дрон пока не назначен!",
+                            modifier = Modifier.weight(1f),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+
+                ElevatedCard(
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = SECONDARY
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        component.openMaps(endLatitude, endLongitude)
+                    }
+                ) {
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(vertical = 20.dp)
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = "Конечное положение",
+                            modifier = Modifier.weight(1f),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+
+            }
         }
         if (state == null && !hasError) {
             Column(
@@ -193,9 +334,12 @@ fun DetailsScreen(
                     .padding(horizontal = 14.dp)
                     .padding(top = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    modifier = Modifier.size(56.dp),
+                    color = PRIMARY
+                )
             }
         }
     }

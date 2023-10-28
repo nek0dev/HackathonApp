@@ -2,7 +2,7 @@ package com.nekodev.hackathonapp.data
 
 import arrow.core.Option
 import arrow.core.none
-import com.nekodev.hackathonapp.model.State
+import com.nekodev.hackathonapp.model.OrderState
 import com.nekodev.hackathonapp.network.datasource.OrdersDataSource
 import com.nekodev.hackathonapp.room.DatabaseDataSource
 
@@ -12,7 +12,7 @@ class OrderRepository(
 ) {
     suspend fun getStateByOrderId(
         orderId: Int
-    ): Option<State> {
+    ): Option<OrderState> {
         val netRes = networkSource.getStateByOrderId(orderId)
         if (netRes.isSome()) {
             return netRes
@@ -24,7 +24,7 @@ class OrderRepository(
         return dbRes
     }
 
-    suspend fun getAllStates(): List<State> {
+    suspend fun getAllStates(): List<OrderState> {
         return databaseSource.getAllStates()
     }
 

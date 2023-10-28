@@ -3,7 +3,7 @@ package com.nekodev.hackathonapp.room
 import arrow.core.Option
 import arrow.core.none
 import arrow.core.some
-import com.nekodev.hackathonapp.model.State
+import com.nekodev.hackathonapp.model.OrderState
 import com.nekodev.hackathonapp.room.entities.OrderDB
 import com.nekodev.hackathonapp.room.entities.StateDB
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 class DatabaseDataSource(
     private val database: AppDatabase
 ) {
-    suspend fun getOrderById(orderId: Int): Option<State> {
+    suspend fun getOrderById(orderId: Int): Option<OrderState> {
         return try {
             val result = withContext(Dispatchers.IO) {
                 database.orderAndStateDao.getOrderAndState(
@@ -25,7 +25,7 @@ class DatabaseDataSource(
         }
     }
 
-    suspend fun getAllStates(): List<State> {
+    suspend fun getAllStates(): List<OrderState> {
         val result = withContext(Dispatchers.IO) {
             database.orderAndStateDao.getAllStates()
         }
@@ -34,25 +34,29 @@ class DatabaseDataSource(
         }
     }
 
-    suspend fun createState(state: State) {
-        val orderId = state.order.id
+    suspend fun createOrderState(orderState: OrderState) {
         with(database.orderAndStateDao) {
-            with(state.order) {
-                insertOrder(OrderDB(id, dimensions, weight, latitude, longitude))
-                updateOrder(id, state.state)
+            if (orderState is OrderState.OnlyOrder) {
+                with(orderState) {
+                    insertOrder(OrderDB(orderId, dimensions, weight, endLatitude, endLongitude))
+                }
+                return
             }
-            with(state) {
-                insertState(
-                    StateDB(
-                        id = id,
-                        serialNumber = serialNumber,
-                        orderId = orderId,
-                        state = state.state,
-                        latitude = latitude,
-                        longitude = longitude
+            if (orderState is OrderState.OrderAndState) {
+                with(orderState) {
+                    insertState(
+                        StateDB(
+                            id = stateId,
+                            serialNumber = serialNumber,
+                            orderId = orderId,
+                            state = state,
+                            latitude = currentLatitude,
+                            longitude = currentLongitude
+                        )
                     )
-                )
+                }
             }
+
         }
     }
 

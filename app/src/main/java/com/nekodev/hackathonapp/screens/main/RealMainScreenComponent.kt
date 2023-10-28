@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import com.arkivanov.decompose.ComponentContext
 import com.nekodev.hackathonapp.data.OrderRepository
-import com.nekodev.hackathonapp.model.State
+import com.nekodev.hackathonapp.model.OrderState
 import com.nekodev.hackathonapp.util.BaseComponent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import org.koin.core.component.inject
 
 class RealMainScreenComponent(
     componentContext: ComponentContext,
-    private val _states: MutableStateFlow<List<State>>,
+    private val _states: MutableStateFlow<List<OrderState>>,
     private val navigateToDetails: (id: Int) -> Unit
 ): BaseComponent(componentContext), MainScreenComponent {
     private val repo: OrderRepository by inject()
@@ -45,6 +45,6 @@ class RealMainScreenComponent(
         navigateToDetails(orderId)
     }
 
-    override val states: StateFlow<List<State>>
+    override val states: StateFlow<List<OrderState>>
         get() = _states
 }

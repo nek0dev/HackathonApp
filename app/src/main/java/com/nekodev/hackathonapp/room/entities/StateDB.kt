@@ -24,7 +24,7 @@ data class StateDB (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     @ColumnInfo("serial_number")
-    val serialNumber: Int,
+    val serialNumber: String,
     @ColumnInfo("order_id", index = true)
     val orderId: Int,
     @ColumnInfo("state", index = true)

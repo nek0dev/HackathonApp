@@ -9,7 +9,7 @@ import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.essenty.lifecycle.doOnCreate
 import com.arkivanov.essenty.lifecycle.doOnResume
 import com.nekodev.hackathonapp.data.OrderRepository
-import com.nekodev.hackathonapp.model.State
+import com.nekodev.hackathonapp.model.OrderState
 import com.nekodev.hackathonapp.navigation.root.RootComponent.Child.*
 import com.nekodev.hackathonapp.screens.details.RealDetailsScreenComponent
 import com.nekodev.hackathonapp.screens.main.RealMainScreenComponent
@@ -41,7 +41,7 @@ class DefaultRootComponent(
 
     override val stack: StateFlow<ChildStack<*, RootComponent.Child>> = _stack
 
-    private val _states: MutableStateFlow<List<State>> = MutableStateFlow(emptyList())
+    private val _states: MutableStateFlow<List<OrderState>> = MutableStateFlow(emptyList())
 
     private val repo: OrderRepository by inject()
 
@@ -70,14 +70,34 @@ class DefaultRootComponent(
                     orderId = config.orderId,
                     updateOrders = { state ->
                         _states.update {
-                            if (it.indexOfFirst { state -> state.order.id == config.orderId } == -1){
-                                val newList = it.toMutableList()
+                            if (
+                                it.indexOfFirst { state ->
+                                    when (state) {
+                                        is OrderState.OnlyOrder -> {
+                                            state.orderId == config.orderId
+                                        }
+
+                                        is OrderState.OrderAndState -> {
+                                            state.orderId == config.orderId
+                                        }
+                                    }
+                                } == -1
+                            ) {
+                                val newList: MutableList<OrderState> = it.toMutableList()
                                 newList += state
                                 return@update newList
                             } else {
                                 val newList = it.toMutableList()
                                 val lol = newList.indexOfFirst {
-                                    it.order.id == config.orderId
+                                    when (state) {
+                                        is OrderState.OnlyOrder -> {
+                                            state.orderId == config.orderId
+                                        }
+
+                                        is OrderState.OrderAndState -> {
+                                            state.orderId == config.orderId
+                                        }
+                                    }
                                 }
                                 if (lol == -1) return@update newList
                                 newList.removeAt(lol)

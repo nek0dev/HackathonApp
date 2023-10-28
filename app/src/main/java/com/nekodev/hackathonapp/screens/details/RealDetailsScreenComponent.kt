@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat.startActivity
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnCreate
 import com.nekodev.hackathonapp.data.OrderRepository
-import com.nekodev.hackathonapp.model.State
+import com.nekodev.hackathonapp.model.OrderState
 import com.nekodev.hackathonapp.room.DatabaseDataSource
 import com.nekodev.hackathonapp.util.BaseComponent
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +20,10 @@ class RealDetailsScreenComponent(
     componentContext: ComponentContext,
     private val orderId: Int,
     private val navigateToMain: () -> Unit,
-    private val updateOrders: (State) -> Unit
+    private val updateOrders: (OrderState) -> Unit
 ) : BaseComponent(componentContext), DetailsScreenComponent {
     private val repo: OrderRepository by inject()
-    private val _state: MutableStateFlow<State?> = MutableStateFlow(null)
+    private val _state: MutableStateFlow<OrderState?> = MutableStateFlow(null)
     private val _hasError: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val databaseSource: DatabaseDataSource by inject()
     private val context: Context by inject()
@@ -37,14 +37,23 @@ class RealDetailsScreenComponent(
                     _state.value = null
                     return@launch
                 }
-                databaseSource.createState(stateFromRepo.getOrNull()!!)
+                val fromRepoValue = stateFromRepo.getOrNull()!!
+                when (fromRepoValue) {
+                    is OrderState.OnlyOrder -> {
+
+                    }
+                    is OrderState.OrderAndState -> {
+
+                    }
+                }
+                databaseSource.createOrderState(stateFromRepo.getOrNull()!!, )
                 _state.value = stateFromRepo.getOrNull()!!
                 updateOrders(stateFromRepo.getOrNull()!!)
             }
         }
     }
 
-    override val state: StateFlow<State?>
+    override val state: StateFlow<OrderState?>
         get() = _state
     override val hasError: StateFlow<Boolean>
         get() = _hasError

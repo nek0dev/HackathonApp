@@ -2,7 +2,7 @@ package com.nekodev.hackathonapp.model
 
 data class State(
     val id: Int,
-    val serialNumber: Int,
+    val serialNumber: String,
     val order: Order,
     val state: String,
     val latitude: Double,
