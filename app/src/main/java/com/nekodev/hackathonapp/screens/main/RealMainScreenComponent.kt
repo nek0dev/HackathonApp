@@ -3,21 +3,25 @@ package com.nekodev.hackathonapp.screens.main
 import android.content.Context
 import android.widget.Toast
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnResume
 import com.nekodev.hackathonapp.data.OrderRepository
 import com.nekodev.hackathonapp.model.OrderState
 import com.nekodev.hackathonapp.util.BaseComponent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.core.component.inject
 
 class RealMainScreenComponent(
     componentContext: ComponentContext,
-    private val _states: MutableStateFlow<List<OrderState>>,
     private val navigateToDetails: (id: Int) -> Unit
 ): BaseComponent(componentContext), MainScreenComponent {
     private val repo: OrderRepository by inject()
     private val context: Context by inject()
+    private val _states: MutableStateFlow<List<OrderState>> = MutableStateFlow(emptyList())
+
     override fun makeSearch(value: String) {
         ioScope.launch {
             val id: Int
@@ -42,6 +46,15 @@ class RealMainScreenComponent(
 
     override fun selectState(orderId: Int) {
         navigateToDetails(orderId)
+    }
+
+    init {
+        lifecycle.doOnResume {
+            mainScope.launch {
+                val result = withContext(Dispatchers.IO){ repo.getAllStates() }
+                _states.value = result
+            }
+        }
     }
 
     override val states: StateFlow<List<OrderState>>

@@ -5,8 +5,6 @@ import com.nekodev.hackathonapp.network.api.DroneApi
 import com.nekodev.hackathonapp.network.api.OrderApi
 import com.nekodev.hackathonapp.network.datasource.NetworkDataSource
 import com.nekodev.hackathonapp.network.datasource.OrdersDataSource
-import kotlinx.coroutines.time.withTimeout
-import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNamingStrategy
@@ -27,10 +25,10 @@ val networkModule = module {
         }
     }
     single(named("droneEndpoint")) {
-        Endpoint("http://91.107.125.237:8001/")
+        Endpoint("https://dronepost.m41den.com/api/")
     }
     single(named("orderEndpoint")) {
-        Endpoint("http://91.107.125.237:8002/api/v1/")
+        Endpoint("https://dronepost.m41den.com/market/api/v1/")
     }
     single<Json> {
         Json {

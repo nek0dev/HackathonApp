@@ -1,12 +1,15 @@
 package com.nekodev.hackathonapp.screens.details
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnCreate
+import com.arkivanov.essenty.lifecycle.doOnPause
+import com.arkivanov.essenty.lifecycle.doOnResume
 import com.nekodev.hackathonapp.data.OrderRepository
 import com.nekodev.hackathonapp.model.OrderState
 import com.nekodev.hackathonapp.room.DatabaseDataSource
@@ -17,15 +20,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.internal.toImmutableList
 import org.koin.core.component.inject
 
 
@@ -33,7 +32,6 @@ class RealDetailsScreenComponent(
     componentContext: ComponentContext,
     private val orderId: Int,
     private val navigateToMain: () -> Unit,
-    private val updateOrders: (OrderState) -> Unit
 ) : BaseComponent(componentContext), DetailsScreenComponent {
     private val repo: OrderRepository by inject()
     private val _state: MutableStateFlow<OrderState?> = MutableStateFlow(null)
@@ -55,7 +53,6 @@ class RealDetailsScreenComponent(
             val dataNonNull = data.getOrNull()!!
             databaseSource.createOrderState(dataNonNull)
             _state.value = dataNonNull
-            updateOrders(dataNonNull)
             send(dataNonNull)
             bool = false
         }
@@ -73,12 +70,16 @@ class RealDetailsScreenComponent(
                 val fromRepoValue = stateFromRepo.getOrNull()!!
                 databaseSource.createOrderState(fromRepoValue)
                 _state.value = fromRepoValue
-                updateOrders(fromRepoValue)
                 _pollFlow.collect {
                     _state.value = it
                 }
             }
-
+        }
+        lifecycle.doOnResume {
+            bool = false
+        }
+        lifecycle.doOnPause {
+            bool = true
         }
     }
 
@@ -96,6 +97,11 @@ class RealDetailsScreenComponent(
             Uri.parse("yandexmaps://maps.yandex.ru/?pt=$longitude,$latitude")
         val intent = Intent(Intent.ACTION_VIEW, uri)
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(context, intent, null)
+        try {
+            startActivity(context, intent, null)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(context, "Не установлено прлиожение Яндекс Карты!", Toast.LENGTH_SHORT).show()
+        }
+        
     }
 }
