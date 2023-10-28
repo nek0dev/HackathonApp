@@ -5,6 +5,7 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.essenty.lifecycle.doOnCreate
 import com.arkivanov.essenty.lifecycle.doOnResume
@@ -53,7 +54,7 @@ class DefaultRootComponent(
                     _states = _states,
                     navigateToDetails = {
                         mainScope.launch {
-                            navigation.push(RootConfig.DetailsScreen(it))
+                            navigation.replaceAll(RootConfig.MainScreen, RootConfig.DetailsScreen(it))
                         }
                     }
                 )
@@ -110,7 +111,7 @@ class DefaultRootComponent(
                         mainScope.launch {
                             val result = withContext(Dispatchers.IO){ repo.getAllStates() }
                             _states.value = result
-                            navigation.replaceCurrent(RootConfig.MainScreen)
+                            navigation.replaceAll(RootConfig.MainScreen)
                         }
                     }
                 )

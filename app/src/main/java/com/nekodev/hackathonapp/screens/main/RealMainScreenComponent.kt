@@ -41,7 +41,6 @@ class RealMainScreenComponent(
     }
 
     override fun selectState(orderId: Int) {
-
         navigateToDetails(orderId)
     }
 

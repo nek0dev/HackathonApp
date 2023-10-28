@@ -5,6 +5,8 @@ import com.nekodev.hackathonapp.network.api.DroneApi
 import com.nekodev.hackathonapp.network.api.OrderApi
 import com.nekodev.hackathonapp.network.datasource.NetworkDataSource
 import com.nekodev.hackathonapp.network.datasource.OrdersDataSource
+import kotlinx.coroutines.time.withTimeout
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNamingStrategy
@@ -15,6 +17,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Converter
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalSerializationApi::class)
 val networkModule = module {
@@ -60,6 +63,10 @@ val networkModule = module {
             addInterceptor(get<HttpLoggingInterceptor>())
             retryOnConnectionFailure(true)
             followRedirects(true)
+            callTimeout(1_000_000L, TimeUnit.SECONDS)
+            connectTimeout(1_000_000L, TimeUnit.SECONDS)
+            writeTimeout(1_000_000L, TimeUnit.SECONDS)
+            readTimeout(1_000_000L, TimeUnit.SECONDS)
         }.build()
     }
 

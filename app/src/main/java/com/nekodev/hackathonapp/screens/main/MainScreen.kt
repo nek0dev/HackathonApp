@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -16,15 +17,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,148 +60,157 @@ fun MainScreen(
         mutableStateOf("")
     }
     val states by component.states.collectAsStateWithLifecycle()
-    Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .padding(horizontal = 10.dp)
-            .padding(top = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(text = "ЗАКАЗЫ")
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White
+                )
+            )
+
+        },
+        contentWindowInsets = WindowInsets(0,0,0,0)
     ) {
-        Text(
-            text = "ЗАКАЗЫ",
-            fontSize = 20.sp,
-            color = Color.Black
-        )
-        OutlinedTextField(
-            value = query.value,
-            onValueChange = {
-                if (it.isDigitsOnly()) {
-                    query.value = it
-                }
-            },
-            shape = RoundedCornerShape(12.dp),
-            maxLines = 1,
-            label = {
-                Text("Номер заказа")
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Search
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    component.makeSearch(query.value)
-                }
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            trailingIcon = {
-                IconButton(
-                    onClick = {
+        Column(
+            modifier = modifier
+                .fillMaxHeight()
+                .navigationBarsPadding()
+                .padding(it)
+                .padding(horizontal = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            OutlinedTextField(
+                value = query.value,
+                onValueChange = {
+                    if (it.isDigitsOnly()) {
+                        query.value = it
+                    }
+                },
+                shape = RoundedCornerShape(12.dp),
+                maxLines = 1,
+                label = {
+                    Text("Номер заказа")
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
                         component.makeSearch(query.value)
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = null,
-                        modifier = Modifier.padding(horizontal = 6.dp)
-                    )
-                }
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = PRIMARY,
-                unfocusedBorderColor = PRIMARY,
-                focusedLabelColor = PRIMARY,
-                unfocusedLabelColor = PRIMARY,
-                focusedTrailingIconColor = PRIMARY,
-                unfocusedTrailingIconColor = PRIMARY,
-                cursorColor = PRIMARY
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            component.makeSearch(query.value)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = null,
+                            modifier = Modifier.padding(horizontal = 6.dp)
+                        )
+                    }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PRIMARY,
+                    unfocusedBorderColor = PRIMARY,
+                    focusedLabelColor = PRIMARY,
+                    unfocusedLabelColor = PRIMARY,
+                    focusedTrailingIconColor = PRIMARY,
+                    unfocusedTrailingIconColor = PRIMARY,
+                    cursorColor = PRIMARY
+                )
             )
-        )
-        val listState = rememberLazyListState()
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            state = listState,
-            contentPadding = PaddingValues(vertical = 10.dp)
-        ) {
-            items(states) { state ->
-                if (state is OrderState.OnlyOrder) {
-                    val name = remember {
-                        "Заказ №${state.orderId}"
-                    }
-                    ElevatedCard(
-                        colors = CardDefaults.elevatedCardColors(
-                            containerColor = SECONDARY
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        onClick = {
-                            component.selectState(orderId = state.orderId)
+            val listState = rememberLazyListState()
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                state = listState,
+                contentPadding = PaddingValues(vertical = 10.dp)
+            ) {
+                items(states) { state ->
+                    if (state is OrderState.OnlyOrder) {
+                        val name = remember {
+                            "Заказ №${state.orderId}"
                         }
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .padding(vertical = 20.dp)
-                                .padding(horizontal = 16.dp)
+                        ElevatedCard(
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = SECONDARY
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            onClick = {
+                                component.selectState(orderId = state.orderId)
+                            }
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.clock_loader_60_24px),
-                                contentDescription = null,
-                                tint = PRIMARY
-                            )
-
-                            Text(
-                                text = name,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
-                }
-                if (state is OrderState.OrderAndState) {
-                    val name = remember {
-                        "Заказ №${state.orderId}"
-                    }
-                    ElevatedCard(
-                        colors = CardDefaults.elevatedCardColors(
-                            containerColor = SECONDARY
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        onClick = {
-                            component.selectState(orderId = state.orderId)
-                        }
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .padding(vertical = 20.dp)
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            if (state.state == "in base"){
-                                Icon(
-                                    painter = painterResource(id = R.drawable.check_circle_24px),
-                                    contentDescription = null,
-                                    tint = PRIMARY
-                                )
-                            } else if (state.state == "in delivery") {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .padding(vertical = 20.dp)
+                                    .padding(horizontal = 16.dp)
+                            ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.clock_loader_60_24px),
                                     contentDescription = null,
                                     tint = PRIMARY
                                 )
-                            }
 
-                            Text(
-                                text = name,
-                                modifier = Modifier.weight(1f)
-                            )
+                                Text(
+                                    text = name,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
-                }
+                    if (state is OrderState.OrderAndState) {
+                        val name = remember {
+                            "Заказ №${state.orderId}"
+                        }
+                        ElevatedCard(
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = SECONDARY
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            onClick = {
+                                component.selectState(orderId = state.orderId)
+                            }
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .padding(vertical = 20.dp)
+                                    .padding(horizontal = 16.dp)
+                            ) {
+                                if (state.state == "in base"){
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.check_circle_24px),
+                                        contentDescription = null,
+                                        tint = PRIMARY
+                                    )
+                                } else if (state.state == "in delivery") {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.clock_loader_60_24px),
+                                        contentDescription = null,
+                                        tint = PRIMARY
+                                    )
+                                }
 
+                                Text(
+                                    text = name,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+
+                }
             }
         }
     }

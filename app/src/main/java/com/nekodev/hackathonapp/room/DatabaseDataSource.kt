@@ -44,6 +44,9 @@ class DatabaseDataSource(
             }
             if (orderState is OrderState.OrderAndState) {
                 with(orderState) {
+                    insertOrder(OrderDB(orderId, dimensions, weight, endLatitude, endLongitude))
+                }
+                with(orderState) {
                     insertState(
                         StateDB(
                             id = stateId,
